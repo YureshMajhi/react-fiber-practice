@@ -8,6 +8,7 @@ import {
   useHelper,
 } from "@react-three/drei";
 import { DirectionalLightHelper } from "three";
+import { useControls } from "leva";
 
 const Cube = ({ position, size, color }) => {
   const ref = useRef();
@@ -51,11 +52,20 @@ const Sphere = ({ position, size, color }) => {
   );
 };
 
-const TorusKnot = () => {
+const TorusKnot = ({ size }) => {
+  const { torusColor, radius } = useControls({
+    torusColor: "green",
+    radius: {
+      value: 5,
+      min: 0,
+      max: 10,
+      step: 1,
+    },
+  });
   return (
     <mesh>
-      <torusKnotGeometry args={[0.8, 0.1, 16]} />
-      <MeshWobbleMaterial factor={1} speed={10} />
+      <torusKnotGeometry args={[radius, ...size]} />
+      <MeshWobbleMaterial color={torusColor} factor={1} speed={10} />
       <OrbitControls />
     </mesh>
   );
@@ -64,12 +74,27 @@ const TorusKnot = () => {
 const Scene = () => {
   const directionalLightRef = useRef();
   useHelper(directionalLightRef, DirectionalLightHelper, 0.5, "white");
+
+  const { lightColor, lightIntensity } = useControls({
+    lightColor: "white",
+    lightIntensity: {
+      value: 0.4,
+      min: 0,
+      max: 10,
+      step: 0.1,
+    },
+  });
   return (
     <>
-      <directionalLight position={[0, 0, 2]} intensity={0.5} ref={directionalLightRef} />
+      <directionalLight
+        color={lightColor}
+        position={[0, 0, 2]}
+        intensity={lightIntensity}
+        ref={directionalLightRef}
+      />
       <ambientLight intensity={0.4} />
 
-      <TorusKnot />
+      <TorusKnot size={[0.1, 1000, 30]} />
 
       <group position={[3, 0, 0]}>
         {/* <Cube position={[0, 0, 0]} size={[1, 1, 1]} color={"pink"} /> */}
